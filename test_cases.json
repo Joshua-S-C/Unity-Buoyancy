@@ -1,0 +1,12 @@
+{
+    "tests": [
+	{"fullname": "MovementTest.TestSphereAABB",
+         "points": 6},
+	{"fullname": "MovementTest.TestSphereOBBRotated",
+	 "points": 6},
+	{"fullname": "MovementTest.TestSphereOBBRotatedScaled",
+         "points": 6},
+	{"fullname": "SceneTests.SceneTest",
+         "points": 6}
+    ]
+}
