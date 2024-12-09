@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Waves
-  m_Shader: {fileID: 4800000, guid: 4f94d2d520e6b4b71bc4b2dfb03f3426, type: 3}
+  m_Name: GerstnerWave
+  m_Shader: {fileID: 4800000, guid: efaa0b17f9dcbff4283f22ce8605f92f, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -61,13 +61,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Amplitude: 5
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.7
+    - _Glossiness: 0.459
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
@@ -75,12 +74,11 @@ Material:
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _Speed: 50
     - _SrcBlend: 1
     - _UVSec: 0
-    - _Wavelength: 50
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.30588236, g: 0.5137255, b: 0.6627451, a: 1}
+    - _Color: {r: 0, g: 1, b: 0.90196085, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _WaveA: {r: 9.28, g: 1, b: 0.59, a: 37.66}
   m_BuildTextureStacks: []
