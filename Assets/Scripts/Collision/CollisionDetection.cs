@@ -157,24 +157,26 @@ public static class CollisionDetection
 
         Vector2 pos = new Vector2(s.Center.x, s.Center.z);
 
+        // Correct
         float centerDistance = s.Center.y - f.getHeight(pos);
 
         // 
         normal = (f.getNormal(pos) + Vector3.up).normalized;
 
+        // Correct
         penetration = -centerDistance;
         penetration += s.Radius;
 
-        if (penetration * penetration > s.Radius * s.Radius)
+        if (centerDistance * centerDistance > s.Radius * s.Radius)
             normal = f.Up;
 
-
+/*
         s1.position = new Vector3(
             s1.position.x, 
             f.getHeight(pos),
             s1.position.z
             );
-
+*/
         Debug.Log($"Normal: {normal} Pen: {penetration} Height: {f.getHeight(pos)} CentrDist: {centerDistance}");
     }
 
@@ -230,7 +232,7 @@ public static class CollisionDetection
         force *= info.penetration * c2.density;
 
         c1.TryGetComponent(out Particle3D component);
-        //component.AddForce(force);
+        component.AddForce(force);
     }
 
     public static VectorDeltas ResolvePosition(CollisionInfo info)
