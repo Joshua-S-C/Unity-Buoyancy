@@ -11,8 +11,9 @@ public class WaveCollider : PhysicsCollider
     WaveController controller;
 
     public Vector3 Origin => transform.position;
-    public Vector3 Normal => transform.up;
-    public float Offset => Vector3.Dot(Origin, Normal);
+
+    public Vector3 Up => transform.up;
+    public float Offset => Vector3.Dot(Origin, transform.up);
     public override Shape shape => Shape.Wave;
 
     private void Awake()
@@ -22,7 +23,7 @@ public class WaveCollider : PhysicsCollider
 
     public float getHeight(Vector2 pos)
     {
-        return controller.getHeight(pos);
+        return controller.getHeight(pos) + Origin.y;
     }
 
     public Vector3 getNormal(Vector2 pos)

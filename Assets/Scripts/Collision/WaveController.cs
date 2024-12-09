@@ -1,10 +1,12 @@
 using Codice.Client.BaseCommands;
+using Codice.CM.Common;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using static Codice.Client.Commands.WkTree.WorkspaceTreeNode;
+using static UnityEditor.PlayerSettings;
 public enum WaveType
 {
     None = 0,
@@ -23,25 +25,30 @@ public class WaveController : MonoBehaviour
 
     public WaveType waveType = WaveType.None;
     private WaveType prevWaveType;
+    public IWave currentWave { get { return waves[(int)waveType]; } private set { } }
 
     public List<Material> mats = new List<Material>();
-    public List<Wave> waves = new List<Wave>();
+    public List<IWave> waves = new List<IWave>();
 
     public FlatWave flat;
     public SineWave sine;
     public GerstnerWaves gerstner;
 
+    public GerstnerWave TEST_G_WAVE_EDITOR;
+
     private void Awake()
     {
         meshRenderer = GetComponent<MeshRenderer>();
+
         waves.Add(flat);
         waves.Add(sine);
         waves.Add(gerstner);
+        updateMaterial(meshRenderer.sharedMaterial);
     }
 
     private void Update()
     {
-        updateMaterial(meshRenderer.material);
+        updateMaterial(meshRenderer.sharedMaterial);
     }
 
     private void LateUpdate()
@@ -51,10 +58,15 @@ public class WaveController : MonoBehaviour
 
         prevWaveType = waveType;
     }
-
+    
     private void updateMaterial(Material mat)
     {
-        waves[(int)waveType].updateShader(mat);
+        currentWave.updateShader(mat);
+    }
+
+    private void updateFromMaterial(Material mat)
+    {
+        currentWave.updateFromShader(mat);
     }
 
     public void changeMaterial()
@@ -64,59 +76,102 @@ public class WaveController : MonoBehaviour
 
     public float getHeight(Vector2 pos)
     {
-        return waves[(int)waveType].getUndulate(pos).y;
+        return currentWave.getHeightAtPos(pos);
     }
 
     public Vector3 getNormalAtPos(Vector2 pos)
     {
-        return waves[(int)waveType].getNormalAtPos(pos);
+        return currentWave.getNormalAtPos(pos);
     }
 }
 
-public interface Wave
+public interface IWave
 {
+    /// <returns>sets relevant shader params</returns>
     public void updateShader(Material mat);
+
+    /// <summary>
+    /// Updates params from shader
+    /// </summary>
+    /// <param name="mat"></param>
+    public void updateFromShader(Material mat);
+
+
+    /// <returns>height relative to the Object</returns>
+    public float getHeightAtPos(Vector2 pos);
+
+    /// <returns>vertex point relative to the Object</returns>
     public Vector3 getUndulate(Vector2 pos);
+
+    /// <returns>normal relative to the Object</returns>
     public Vector3 getNormalAtPos(Vector2 pos);
 }
 
-[ExecuteInEditMode]
-[Serializable]
-public class FlatWave : Wave
+[ExecuteInEditMode] [Serializable]
+public class FlatWave : IWave
 {
-    public Vector3 getNormalAtPos(Vector2 pos)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Vector3 getUndulate(Vector2 pos)
-    {
-        throw new NotImplementedException();
-    }
-
     public void updateShader(Material mat)
     {
         // Nothing to update lol
         return;
     }
-}
 
-[Serializable]
-public class SineWave : Wave
-{
-    public float amplitude = 5, wavelength = 50, speed = 50;
-
-    public void updateShader(Material mat)
+    public void updateFromShader(Material mat)
     {
-        Debug.Log("Updated Shader");
-        mat.SetFloat("Amplitude", amplitude);
-        mat.SetFloat("Wavelength", wavelength);
-        mat.SetFloat("Speed", speed);
+
+    }
+
+    public float getHeightAtPos(Vector2 pos)
+    {
+        return 0;
     }
 
     public Vector3 getUndulate(Vector2 pos)
     {
-        float k = 2 * Mathf.PI / wavelength;
+        return Vector3.zero;
+    }
+
+    public Vector3 getNormalAtPos(Vector2 pos)
+    {
+        return Vector3.up;
+    }
+}
+
+[Serializable]
+public class SineWave : IWave
+{
+    public float amplitude = 5, wavelength = 50, speed = 50;
+
+    private float k { get { return 2 * Mathf.PI / wavelength; } set { } }
+
+    public void updateShader(Material mat)
+    {
+        mat.SetFloat("_Amplitude", amplitude);
+        mat.SetFloat("_Wavelength", wavelength);
+        mat.SetFloat("_Speed", speed);
+    }
+
+    public void updateFromShader(Material mat)
+    {
+        Debug.Log("Updating from Shader");
+        amplitude = mat.GetFloat("_Amplitude");
+        wavelength = mat.GetFloat("_Wavelength");
+        speed = mat.GetFloat("_Speed");
+    }
+
+    public float getHeightAtPos(Vector2 pos)
+    {
+        float f = k * (pos.x - speed * Time.time);
+
+        float height = amplitude * Mathf.Sin(f);
+
+        //Debug.Log(height);
+
+        return height;
+    }
+
+    public Vector3 getUndulate(Vector2 pos)
+    {
         float f = k * (pos.x - speed * Time.time);
 
         float height = amplitude * Mathf.Sin(f);
@@ -126,7 +181,6 @@ public class SineWave : Wave
 
     public Vector3 getNormalAtPos(Vector2 pos)
     {
-        float k = 2 * Mathf.PI / wavelength;
         float f = k * (pos.x - speed * Time.time);
         float height = amplitude * Mathf.Sin(f);
 
@@ -134,13 +188,29 @@ public class SineWave : Wave
         Vector3 normal = new Vector3(-tangent.y, tangent.x, 0);
         return normal;
     }
+
 }
 
 [Serializable]
-public class GerstnerWaves : Wave
+public class GerstnerWaves : IWave
 {
-    List<GerstnerWave> waves = new List<GerstnerWave>();
+    public string TEST;
+
+    // Arrays dont work ig
+    GerstnerWave[] waves = { new GerstnerWave()};
+    List<GerstnerWave> wavesList = new List<GerstnerWave>{ new GerstnerWave()};
+
     public void updateShader(Material mat)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void updateFromShader(Material mat)
+    {
+        throw new NotImplementedException();
+    }
+
+    public float getHeightAtPos(Vector2 pos)
     {
         throw new NotImplementedException();
     }
@@ -158,7 +228,6 @@ public class GerstnerWaves : Wave
         throw new NotImplementedException();
 
     }
-
 }
 
 [Serializable]

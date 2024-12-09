@@ -155,17 +155,27 @@ public static class CollisionDetection
         Sphere s = s1 as Sphere;
         WaveCollider f = f1 as WaveCollider;
 
-        float centerDistance = Vector3.Dot(f.Normal, s.Center) - f.getHeight(new Vector2(s.Center.x, s.Center.z));
+        Vector2 pos = new Vector2(s.Center.x, s.Center.z);
 
-        normal = f.Normal;
+        float centerDistance = s.Center.y - f.getHeight(pos);
+
+        // 
+        normal = (f.getNormal(pos) + Vector3.up).normalized;
+
         penetration = -centerDistance;
         penetration += s.Radius;
 
+        if (penetration * penetration > s.Radius * s.Radius)
+            normal = f.Up;
+
+
         s1.position = new Vector3(
             s1.position.x, 
-            f.getHeight(new Vector2(s.Center.x, s.Center.z))/ 2 /*+ f.position.y*/,
+            f.getHeight(pos),
             s1.position.z
             );
+
+        Debug.Log($"Normal: {normal} Pen: {penetration} Height: {f.getHeight(pos)} CentrDist: {centerDistance}");
     }
 
     public static CollisionInfo GetCollisionInfo(PhysicsCollider s1, PhysicsCollider s2)
@@ -219,7 +229,7 @@ public static class CollisionDetection
         Vector3 force = info.normal;
         force *= info.penetration * c2.density;
 
-        //c1.TryGetComponent(out Particle3D component);
+        c1.TryGetComponent(out Particle3D component);
         //component.AddForce(force);
     }
 
