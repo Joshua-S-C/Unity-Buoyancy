@@ -12,6 +12,6 @@ EditorBuildSettings:
     path: Assets/Scenes/OctreeScene.unity
     guid: 9be0643327add42ae8d64908160ab7ca
   - enabled: 1
-    path: Assets/Scenes/TestScene.unity
+    path: Assets/Scenes/3DTest.unity
     guid: a2d95b8970b904ff18dddf5f158020ae
   m_configObjects: {}

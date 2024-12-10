@@ -147,7 +147,12 @@ public class FlatWave : IWave
 [Serializable]
 public class SineWave : IWave
 {
-    public float amplitude = 5, wavelength = 50, speed = 50;
+    [SerializeField, Range(0,30)]
+    public float amplitude = 5;
+    [SerializeField, Range(0, 50)]
+    public float wavelength = 50;
+    [SerializeField, Range(0, 50)]
+    public float speed = 50;
 
     private float k { get { return 2 * Mathf.PI / wavelength; } set { } }
 
@@ -282,7 +287,9 @@ public class GerstnerWave
     [SerializeField, Range(0,10)] int waveHeightResolution = 1;
 
     public Vector2 dir = new Vector2(1,1);
+    [SerializeField, Range(0, 30)]
     public float wavelength = 0f;
+    [SerializeField, Range(0, 1)]
     float steepness = .5f; 
 
     private float k { get { return 2 * Mathf.PI / wavelength; } set { } }
