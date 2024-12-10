@@ -154,7 +154,7 @@ public class SineWave : IWave
     [SerializeField, Range(0, 50)]
     public float speed = 50;
 
-    private float k { get { return 2 * Mathf.PI / wavelength; } set { } }
+    private float waveNumber { get { return 2 * Mathf.PI / wavelength; } set { } }
 
     public void updateShader(Material mat)
     {
@@ -173,18 +173,14 @@ public class SineWave : IWave
 
     public float getHeightAtPos(Vector2 pos)
     {
-        float f = k * (pos.x - speed * Time.time);
-
+        float f = waveNumber * (pos.x - speed * Time.time);
         float height = amplitude * Mathf.Sin(f);
-
-        //Debug.Log(height);
-
         return height;
     }
 
     public Vector3 getUndulate(Vector2 pos)
     {
-        float f = k * (pos.x - speed * Time.time);
+        float f = waveNumber * (pos.x - speed * Time.time);
 
         float height = amplitude * Mathf.Sin(f);
 
@@ -193,10 +189,10 @@ public class SineWave : IWave
 
     public Vector3 getNormalAtPos(Vector2 pos)
     {
-        float f = k * (pos.x - speed * Time.time);
+        float f = waveNumber * (pos.x - speed * Time.time);
         float height = amplitude * Mathf.Sin(f);
 
-        Vector3 tangent = Vector3.Normalize(new Vector3(1, k * amplitude * Mathf.Cos(f), 0));
+        Vector3 tangent = Vector3.Normalize(new Vector3(1, waveNumber * amplitude * Mathf.Cos(f), 0));
         Vector3 normal = new Vector3(-tangent.y, tangent.x, 0);
         return normal;
     }

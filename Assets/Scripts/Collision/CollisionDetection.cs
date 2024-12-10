@@ -163,7 +163,7 @@ public static class CollisionDetection
         penetration = -centerDistance;
         penetration += s.Radius;
 
-        // Force direction is up when underwater. Which is more accurate
+        // Force direction is up when underwater
         if (!f.AlwaysUseSurfaceNormal)
             if (centerDistance * centerDistance > s.Radius * s.Radius)
                 normal = f.Up;
@@ -229,19 +229,18 @@ public static class CollisionDetection
         // Not Overlapping
         if (info.penetration <= 0) return;
 
-        Vector3 force = info.normal;
-        //force *= info.penetration * c2.density; 
-
-        if (info.penetration > 1) info.penetration = 1;
+        c1.TryGetComponent(out Particle3D particle);
+        c1.TryGetComponent(out Sphere sphere);
 
         /*Fb	=	-ρgV*/
-        
-        // Displaced Fluid (aproximation for waves)
-        float volume = info.penetration * c1.GetComponent<Sphere>().Volume;
-        force *= c2.density * c1.GetComponent<Particle3D>().gravity.magnitude * volume; 
 
-        c1.TryGetComponent(out Particle3D component);
-        component.AddForce(force);
+        Vector3 force = info.normal; 
+        if (info.penetration > 1) info.penetration = 1;
+        
+        // Displaced Fluid
+        float volume = info.penetration * sphere.Volume;
+        force *= c2.density * particle.gravity.magnitude * volume; 
+        particle.AddForce(force);
     }
 
     public static VectorDeltas ResolvePosition(CollisionInfo info)
