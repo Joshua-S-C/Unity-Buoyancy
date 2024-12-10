@@ -38,7 +38,7 @@ Shader "Custom/Waves"
 		    // Used in Calcs --------------------------------------------------------*/
             float steepness = wave.z;
 		    float wavelength = wave.w;
-		    float k = 2 * UNITY_PI / wavelength;        // Wave Number
+		    float k = 2 * UNITY_PI / wavelength;        // Wave Number. 2 PI is what makes it pretty
 			float c = sqrt(9.8 / k);                    // Speed, input is gravity but assuming 9.8
 			float2 d = normalize(wave.xy);              // Direction normalized
 			float f = k * (dot(d, p.xz) - c * _Time.y); 

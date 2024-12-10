@@ -242,12 +242,13 @@ MonoBehaviour:
     amplitude: 0.5
     wavelength: 5
     speed: 5
-  gerstner:
-    TEST: 
   gerstnerWaves:
-  - dir: {x: 1, y: 1}
-    steepness: 0.2
+  - dir: {x: 0.1, y: 0}
+    wavelength: 10
+  - dir: {x: 1.15, y: 5}
     wavelength: 5
+  - dir: {x: -1, y: 0.5}
+    wavelength: 2
 --- !u!1 &381970297
 GameObject:
   m_ObjectHideFlags: 0

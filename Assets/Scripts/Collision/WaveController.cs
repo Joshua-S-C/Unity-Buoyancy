@@ -7,6 +7,9 @@ using UnityEditor;
 using UnityEngine;
 using static Codice.Client.Commands.WkTree.WorkspaceTreeNode;
 using static UnityEditor.PlayerSettings;
+
+// All the Unity auto includes that were accidentally added
+
 public enum WaveType
 {
     None = 0,
@@ -101,7 +104,6 @@ public interface IWave
     /// <param name="mat"></param>
     public void updateFromShader(Material mat);
 
-
     /// <returns>height relative to the Object</returns>
     public float getHeightAtPos(Vector2 pos);
 
@@ -112,7 +114,7 @@ public interface IWave
     public Vector3 getNormalAtPos(Vector2 pos);
 }
 
-[ExecuteInEditMode] [Serializable]
+[Serializable]
 public class FlatWave : IWave
 {
     public void updateShader(Material mat)
@@ -311,24 +313,29 @@ public class GerstnerWave
 
     public float getHeight(Vector2 pos)
     {
+        // omg it works
+        
         // Stepping back time to approximate height
         float backwardsTime = 0f;
+
         for (int i = 0; i < 5; i++)
-            backwardsTime = -Mathf.Cos(Time.time + backwardsTime) * steepness;
+            backwardsTime = -Mathf.Cos(c * Time.time + backwardsTime) * steepness;
+        
+        float oldF = k * (Vector2.Dot(d, pos) - (c * Time.time));
 
-        float f = k * (Vector2.Dot(d, pos) - c * (Time.time + backwardsTime));
+        Vector2 newPos = new Vector2(
+            k * pos.x - a * Mathf.Cos(oldF), 
+            k * pos.y - a * Mathf.Cos(oldF)
+        );
 
-        return a * Mathf.Sin(f - c * Time.time);
+        float f = k * (Vector2.Dot(d, newPos) - (c * Time.time));
+
+        return a/2 * Mathf.Sin(f);
     }
 
     public Vector3 getUndulate(Vector2 pos)
     {
-        // Used in Calcs --------------------------------------------------------/
-        float k = 2 * Mathf.PI / wavelength;
-        float c = Mathf.Sqrt(9.8f / k);
-        Vector2 d = dir.normalized;
         float f = k * (Vector3.Dot(d, pos) - c * Time.time);
-        float a = steepness / k;
 
         return new Vector3(
             d.x * (a * Mathf.Cos(f)),
