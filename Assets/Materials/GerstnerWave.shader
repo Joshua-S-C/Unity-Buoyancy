@@ -21,9 +21,9 @@ Shader "Custom/Waves"
         #pragma target 3.0
 
         // Uniforms
+        sampler2D _MainTex;
         int _NumWaves = 0;
         float4 _Waves[10];
-        sampler2D _MainTex;
         float4 _WaveA;
 
         struct Input
@@ -71,10 +71,9 @@ Shader "Custom/Waves"
 			float3 binormal = float3(0, 0, 1);
             float3 p = gridPoint;
 
-            // Just doing this one separately to see in scene
-            p += GerstnerWave(_WaveA, gridPoint, tangent, binormal);
-
-            for(int i = 1; i < _NumWaves; i++) {
+            for(int i = 0; i < _NumWaves; i++) {
+                if (_Waves[i].w == 0)
+                    continue;
                 p += GerstnerWave(_Waves[i], gridPoint, tangent, binormal);
             }
 

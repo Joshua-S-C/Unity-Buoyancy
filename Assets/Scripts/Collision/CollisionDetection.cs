@@ -170,13 +170,13 @@ public static class CollisionDetection
         if (centerDistance * centerDistance > s.Radius * s.Radius)
             normal = f.Up;
 
-/*
+
         s1.position = new Vector3(
             s1.position.x, 
             f.getHeight(pos),
             s1.position.z
             );
-*/
+
         Debug.Log($"Normal: {normal} Pen: {penetration} Height: {f.getHeight(pos)} CentrDist: {centerDistance}");
     }
 
@@ -227,12 +227,12 @@ public static class CollisionDetection
         // Not Overlapping
         if (info.penetration <= 0) return;
 
-        // 
         Vector3 force = info.normal;
-        //force *= info.penetration * c2.density;
+        //force *= info.penetration * c2.density; 
+
         if (info.penetration > 1) info.penetration = 1;
 
-        //Fb	=	-ρgV
+        /*Fb	=	-ρgV*/
         
         // Approximating displaced
         //Vector3 force = Vector3.up;

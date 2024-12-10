@@ -46,12 +46,14 @@ public class WaveController : MonoBehaviour
 
         changeMaterial();
         updateMaterial(meshRenderer.sharedMaterial);
+
+        gerstner.loadWaves(gerstnerWaves);
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        updateMaterial(meshRenderer.sharedMaterial);
         gerstner.loadWaves(gerstnerWaves);
+        updateMaterial(meshRenderer.sharedMaterial);
     }
 
     private void LateUpdate()
@@ -197,10 +199,16 @@ public class SineWave : IWave
 [Serializable]
 public class GerstnerWaves : IWave
 {
-    public string TEST;
-
     List<GerstnerWave> waves = new List<GerstnerWave>();
-    List<Vector4> wavesAsVectors = new List<Vector4>();
+    int maxWavesIndex = 10;
+    List<Vector4> wavesAsVectors = new List<Vector4>(10);
+
+    public GerstnerWaves()
+    {
+        for (int i = 0; i < maxWavesIndex; i++)
+            waves.Add(new GerstnerWave());
+        wavesToVector4();
+    }
 
     public void loadWaves(List<GerstnerWave> waves)
     {
@@ -210,7 +218,9 @@ public class GerstnerWaves : IWave
 
     public void wavesToVector4()
     {
-        for (int i = 0; i < waves.Count; i++)
+        wavesAsVectors.Clear();
+
+        for (int i = 0; i < wavesAsVectors.Capacity && i < waves.Count; i++)
         {
             GerstnerWave wave = waves[i];
 
@@ -222,15 +232,15 @@ public class GerstnerWaves : IWave
 
             wavesAsVectors[i] = wave.toVector4();
         }
+
+        //Debug.Log(wavesAsVectors[0]);
     }
 
     public void updateShader(Material mat)
     {
         wavesToVector4();
-
-        // TODO Change this so that A isn't in there twice
-        mat.SetVector("_WaveA", wavesAsVectors[0]);
-        mat.SetVectorArray("_Waves", wavesAsVectors);
+        mat.SetInteger("_NumWaves", wavesAsVectors.Count);
+        mat.SetVectorArray("_Waves", wavesAsVectors.ToArray());
     }
 
     public void updateFromShader(Material mat)
@@ -268,7 +278,14 @@ public class GerstnerWaves : IWave
 public class GerstnerWave
 {
     public Vector2 dir = new Vector2(1,1);
-    public float steepness = .5f, wavelength = 10f;
+    public float wavelength = 0f;
+    float steepness = .5f; 
+
+    private float k { get { return 2 * Mathf.PI / wavelength; } set { } }
+    private float c { get { return Mathf.Sqrt(9.8f / k); } set { } }
+    private float a { get { return steepness / k; } set { } }
+    private Vector2 d { get { return dir.normalized; } set { } }
+
 
     public GerstnerWave() { }
 
@@ -294,18 +311,14 @@ public class GerstnerWave
 
     public float getHeight(Vector2 pos)
     {
+        // Stepping back time to approximate height
+        float backwardsTime = 0f;
+        for (int i = 0; i < 5; i++)
+            backwardsTime = -Mathf.Cos(Time.time + backwardsTime) * steepness;
 
+        float f = k * (Vector2.Dot(d, pos) - c * (Time.time + backwardsTime));
 
-        // Used in Calcs --------------------------------------------------------/
-        float k = 2 * Mathf.PI / wavelength;
-        float c = Mathf.Sqrt(9.8f / k);
-        Vector2 d = dir.normalized;
-        float f = k * (Vector3.Dot(d, pos) - c * Time.time);
-        float a = steepness / k;
-
-
-
-        return a * Mathf.Sin(f);
+        return a * Mathf.Sin(f - c * Time.time);
     }
 
     public Vector3 getUndulate(Vector2 pos)
@@ -327,11 +340,7 @@ public class GerstnerWave
     public Vector3 getNormalAtPos(Vector2 pos) {
         Vector3 tangent = Vector3.zero, binormal = Vector3.zero;
 
-        float k = 2 * Mathf.PI / wavelength;
-        float c = Mathf.Sqrt(9.8f / k);
-        Vector2 d = dir.normalized;
         float f = k * (Vector2.Dot(d, pos) - c * Time.time);
-        float a = steepness / k;
 
         tangent += new Vector3(
             -d.x * d.x * (steepness * Mathf.Sin(f)),
