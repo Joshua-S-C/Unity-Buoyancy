@@ -176,7 +176,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: eb140b4c1e79e460ebbee382fbd79287, type: 2}
+  - {fileID: 2100000, guid: 6966130d07335c34898b03fda020ca2d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -243,12 +243,9 @@ MonoBehaviour:
     wavelength: 5
     speed: 5
   gerstnerWaves:
-  - dir: {x: 0.1, y: 0}
+  - waveHeightResolution: 0
+    dir: {x: 0.1, y: 0}
     wavelength: 10
-  - dir: {x: 1.15, y: 5}
-    wavelength: 5
-  - dir: {x: -1, y: 0.5}
-    wavelength: 2
 --- !u!1 &381970297
 GameObject:
   m_ObjectHideFlags: 0
@@ -803,7 +800,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 589140293}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.51, z: 0}
+  m_LocalPosition: {x: 4.95, y: 0.51, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []

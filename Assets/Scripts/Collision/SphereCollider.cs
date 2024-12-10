@@ -6,9 +6,10 @@ public class Sphere : PhysicsCollider
 {
     [SerializeField] bool overrideVolume = false;
 
-    public Vector3 Center => transform.position;
-    public float Radius => transform.localScale.x / 2;
     public override Shape shape => Shape.Sphere;
+    public Vector3 Center => transform.position;
+
+    public float Radius => transform.localScale.x / 2;
     public float Volume => 
         overrideVolume ? 
         volume : 

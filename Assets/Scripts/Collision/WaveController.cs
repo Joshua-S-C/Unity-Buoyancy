@@ -279,6 +279,8 @@ public class GerstnerWaves : IWave
 [Serializable]
 public class GerstnerWave
 {
+    [SerializeField, Range(0,10)] int waveHeightResolution = 1;
+
     public Vector2 dir = new Vector2(1,1);
     public float wavelength = 0f;
     float steepness = .5f; 
@@ -299,6 +301,9 @@ public class GerstnerWave
         this.wavelength = wavelength;
     }
 
+    /// <summary>
+    /// Passing into GPU
+    /// </summary>
     public Vector4 toVector4()
     {
         Vector4 info = new Vector4();
@@ -314,23 +319,24 @@ public class GerstnerWave
     public float getHeight(Vector2 pos)
     {
         // omg it works
-        
-        // Stepping back time to approximate height
-        float backwardsTime = 0f;
-
-        for (int i = 0; i < 5; i++)
-            backwardsTime = -Mathf.Cos(c * Time.time + backwardsTime) * steepness;
-        
+       
         float oldF = k * (Vector2.Dot(d, pos) - (c * Time.time));
 
+        // The position we need to look at to get the height at our real position
         Vector2 newPos = new Vector2(
-            k * pos.x - a * Mathf.Cos(oldF), 
+            k * pos.x - a * Mathf.Cos(oldF),
             k * pos.y - a * Mathf.Cos(oldF)
         );
 
+        for (int i = 0; i < waveHeightResolution; i++)
+        {
+            newPos.x = k * pos.x - a * Mathf.Cos(newPos.x);
+            newPos.y = k * pos.y - a * Mathf.Cos(newPos.y);
+        }
+
         float f = k * (Vector2.Dot(d, newPos) - (c * Time.time));
 
-        return a/2 * Mathf.Sin(f);
+        return a * Mathf.Sin(f);
     }
 
     public Vector3 getUndulate(Vector2 pos)

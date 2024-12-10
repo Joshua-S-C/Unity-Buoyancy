@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(WaveController))]
-
 public class WaveCollider : PhysicsCollider
 {
     public float density;
+    public bool AlwaysUseSurfaceNormal = true, SetPosition = false;
 
     WaveController controller;
 
