@@ -61,7 +61,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Amplitude: 1
+    - _Amplitude: 0.5
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -75,10 +75,10 @@ Material:
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _Speed: 50
+    - _Speed: 5
     - _SrcBlend: 1
     - _UVSec: 0
-    - _Wavelength: 50
+    - _Wavelength: 5
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 0.6179245, g: 0.9602826, b: 1, a: 1}

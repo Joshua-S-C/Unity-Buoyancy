@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -227,9 +227,17 @@ public static class CollisionDetection
         // Not Overlapping
         if (info.penetration <= 0) return;
 
-        // Hydrostatic force technically
+        // 
         Vector3 force = info.normal;
-        force *= info.penetration * c2.density;
+        //force *= info.penetration * c2.density;
+        if (info.penetration > 1) info.penetration = 1;
+
+        //Fb	=	-ρgV
+        
+        // Approximating displaced
+        //Vector3 force = Vector3.up;
+        float volume = info.penetration * c1.GetComponent<Sphere>().Volume;
+        force *= c2.density * c1.GetComponent<Particle3D>().gravity.magnitude * volume; 
 
         c1.TryGetComponent(out Particle3D component);
         component.AddForce(force);

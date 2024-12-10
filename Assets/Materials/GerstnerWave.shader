@@ -7,6 +7,7 @@ Shader "Custom/Waves"
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
 
+        _NumWaves ("Number of Waves", Integer) = 1
         _WaveA ("Wave A (dir, steepness, wavelength)", Vector) = (1,0,0.5,10)
     }
     SubShader
@@ -15,12 +16,13 @@ Shader "Custom/Waves"
         LOD 200
 
         CGPROGRAM
-        // Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Standard fullforwardshadows vertex:vert addshadow
 
-        // Use shader model 3.0 target, to get nicer looking lighting
+        #pragma surface surf Standard fullforwardshadows vertex:vert addshadow
         #pragma target 3.0
 
+        // Uniforms
+        int _NumWaves = 0;
+        float4 _Waves[10];
         sampler2D _MainTex;
         float4 _WaveA;
 
@@ -29,23 +31,20 @@ Shader "Custom/Waves"
             float2 uv_MainTex;
         };
 
-
-        // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
-        // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
-        // #pragma instancing_options assumeuniformscaling
         UNITY_INSTANCING_BUFFER_START(Props)
-            // put more per-instance properties here
         UNITY_INSTANCING_BUFFER_END(Props)
 
         float3 GerstnerWave (float4 wave, float3 p, inout float3 tangent, inout float3 binormal) {
-		    float steepness = wave.z;
+		    // Used in Calcs --------------------------------------------------------*/
+            float steepness = wave.z;
 		    float wavelength = wave.w;
-		    float k = 2 * UNITY_PI / wavelength;
-			float c = sqrt(9.8 / k);
-			float2 d = normalize(wave.xy);
-			float f = k * (dot(d, p.xz) - c * _Time.y);
-			float a = steepness / k;
+		    float k = 2 * UNITY_PI / wavelength;        // Wave Number
+			float c = sqrt(9.8 / k);                    // Speed, input is gravity but assuming 9.8
+			float2 d = normalize(wave.xy);              // Direction normalized
+			float f = k * (dot(d, p.xz) - c * _Time.y); 
+			float a = steepness / k;                    // Amplitude
 
+            // Normals --------------------------------------------------------------*/
 			tangent += float3(
 				-d.x * d.x * (steepness * sin(f)),
 				d.x * (steepness * cos(f)),
@@ -56,6 +55,8 @@ Shader "Custom/Waves"
 				d.y * (steepness * cos(f)),
 				-d.y * d.y * (steepness * sin(f))
 			);
+
+            // Undulation -----------------------------------------------------------*/
 			return float3(
 				d.x * (a * cos(f)),
 				a * sin(f),
@@ -65,15 +66,25 @@ Shader "Custom/Waves"
 
         void vert (inout appdata_full vertexData) {
             float3 gridPoint = vertexData.vertex.xyz;
-         float3 tangent = 0;
-         float3 binormal = 0;
-         float3 p = gridPoint;
-         p += GerstnerWave(_WaveA, gridPoint, tangent, binormal);
-         float3 normal = normalize(cross(binormal, tangent));
-         vertexData.vertex.xyz = p;
-         vertexData.normal = normal;
+
+            float3 tangent = float3(1, 0, 0);
+			float3 binormal = float3(0, 0, 1);
+            float3 p = gridPoint;
+
+            // Just doing this one separately to see in scene
+            p += GerstnerWave(_WaveA, gridPoint, tangent, binormal);
+
+            for(int i = 1; i < _NumWaves; i++) {
+                p += GerstnerWave(_Waves[i], gridPoint, tangent, binormal);
+            }
+
+            float3 normal = normalize(cross(binormal, tangent));
+
+            vertexData.vertex.xyz = p;
+            vertexData.normal = normal;
         }
 
+        // Uniforms
         half _Glossiness;
         half _Metallic;
         fixed4 _Color;

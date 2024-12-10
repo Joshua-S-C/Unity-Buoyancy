@@ -32,9 +32,9 @@ public class WaveController : MonoBehaviour
 
     public FlatWave flat;
     public SineWave sine;
-    public GerstnerWaves gerstner;
 
-    public GerstnerWave TEST_G_WAVE_EDITOR;
+    public GerstnerWaves gerstner;
+    public List<GerstnerWave> gerstnerWaves;
 
     private void Awake()
     {
@@ -43,12 +43,15 @@ public class WaveController : MonoBehaviour
         waves.Add(flat);
         waves.Add(sine);
         waves.Add(gerstner);
+
+        changeMaterial();
         updateMaterial(meshRenderer.sharedMaterial);
     }
 
     private void Update()
     {
         updateMaterial(meshRenderer.sharedMaterial);
+        gerstner.loadWaves(gerstnerWaves);
     }
 
     private void LateUpdate()
@@ -196,13 +199,38 @@ public class GerstnerWaves : IWave
 {
     public string TEST;
 
-    // Arrays dont work ig
-    GerstnerWave[] waves = { new GerstnerWave()};
-    List<GerstnerWave> wavesList = new List<GerstnerWave>{ new GerstnerWave()};
+    List<GerstnerWave> waves = new List<GerstnerWave>();
+    List<Vector4> wavesAsVectors = new List<Vector4>();
+
+    public void loadWaves(List<GerstnerWave> waves)
+    {
+        this.waves = waves;
+        wavesToVector4();
+    }
+
+    public void wavesToVector4()
+    {
+        for (int i = 0; i < waves.Count; i++)
+        {
+            GerstnerWave wave = waves[i];
+
+            if (i >= wavesAsVectors.Count)
+            {
+                wavesAsVectors.Add(wave.toVector4());
+                continue;
+            }
+
+            wavesAsVectors[i] = wave.toVector4();
+        }
+    }
 
     public void updateShader(Material mat)
     {
-        throw new NotImplementedException();
+        wavesToVector4();
+
+        // TODO Change this so that A isn't in there twice
+        mat.SetVector("_WaveA", wavesAsVectors[0]);
+        mat.SetVectorArray("_Waves", wavesAsVectors);
     }
 
     public void updateFromShader(Material mat)
@@ -212,21 +240,27 @@ public class GerstnerWaves : IWave
 
     public float getHeightAtPos(Vector2 pos)
     {
-        throw new NotImplementedException();
+        float height = 0;
+
+        foreach (GerstnerWave wave in waves)
+            height += wave.getHeight(pos);
+
+        return height;
     }
 
     public Vector3 getUndulate(Vector2 pos)
     {
-        return waves[0].getUndulate(pos);
         throw new NotImplementedException();
-
     }
 
     public Vector3 getNormalAtPos(Vector2 pos)
     {
-        return waves[0].getNormalAtPos(pos);
-        throw new NotImplementedException();
+        Vector3 normal = Vector3.zero;
 
+        foreach (GerstnerWave wave in waves)
+            normal += wave.getNormalAtPos(pos);
+        
+        return normal.normalized;
     }
 }
 
@@ -244,6 +278,34 @@ public class GerstnerWave
         this.dir.y = dirY;
         this.steepness = steepness;
         this.wavelength = wavelength;
+    }
+
+    public Vector4 toVector4()
+    {
+        Vector4 info = new Vector4();
+
+        info.x = dir.x;
+        info.y = dir.y;
+        info.z = steepness;
+        info.w = wavelength;
+
+        return info;
+    }
+
+    public float getHeight(Vector2 pos)
+    {
+
+
+        // Used in Calcs --------------------------------------------------------/
+        float k = 2 * Mathf.PI / wavelength;
+        float c = Mathf.Sqrt(9.8f / k);
+        Vector2 d = dir.normalized;
+        float f = k * (Vector3.Dot(d, pos) - c * Time.time);
+        float a = steepness / k;
+
+
+
+        return a * Mathf.Sin(f);
     }
 
     public Vector3 getUndulate(Vector2 pos)
